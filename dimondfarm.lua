@@ -324,6 +324,220 @@ local function TerminateTargetScript()
     end
 end
 
+-- =========================================================================
+--   [HUB-BRAND] Doi ten hub sau khi tai + son giao dien cosmic (zero-lag)
+--   Chi thay chuoi nguyen van -> khong the lam hong ten ham/bien
+--   Tu chua moi ham can dung (khong phu thuoc file khac)
+-- =========================================================================
+local HUB_BRAND_PAIRS = {
+    { "Chilli Hub Discord", "Chilli VKing Discord" },
+    { "Chilli Hub V5", "Chilli VKing" },
+    { "CHILLI HUB V5", "CHILLI VKING" },
+    { "Chilli Hub", "Chilli VKing" },
+    { "CHILLI HUB", "CHILLI VKING" },
+}
+
+local function HubReplacePlain(src, from, to)
+    if type(src) ~= "string" or from == nil or from == "" then return src end
+    local out, pos = {}, 1
+    while true do
+        local a, b = src:find(from, pos, true)
+        if not a then break end
+        out[#out + 1] = src:sub(pos, a - 1)
+        out[#out + 1] = to
+        pos = b + 1
+    end
+    out[#out + 1] = src:sub(pos)
+    return table.concat(out)
+end
+
+local function RenameHubBrand(src)
+    if type(src) ~= "string" or #src < 200 then return src end
+    local out = src
+    for _, pair in ipairs(HUB_BRAND_PAIRS) do
+        out = HubReplacePlain(out, pair[1], pair[2])
+    end
+    return out
+end
+
+local HUB_COSMIC_A = Color3.fromRGB(124, 58, 237)
+local HUB_COSMIC_B = Color3.fromRGB(6, 182, 212)
+local HUB_COSMIC_C = Color3.fromRGB(236, 72, 153)
+
+local function HubCosmicGradient()
+    return ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00, HUB_COSMIC_A),
+        ColorSequenceKeypoint.new(0.55, HUB_COSMIC_B),
+        ColorSequenceKeypoint.new(1.00, HUB_COSMIC_C),
+    })
+end
+
+-- Tu lay cac root chua ScreenGui (khong dung handler cua file khac)
+local function HubScanRoots()
+    local roots, seen = {}, {}
+    local function add(r)
+        if r and not seen[r] then seen[r] = true; roots[#roots + 1] = r end
+    end
+    local okH, h = pcall(function() return (gethui and gethui()) or nil end)
+    if okH then add(h) end
+    local okC, c = pcall(function() return game:GetService("CoreGui") end)
+    if okC then add(c) end
+    local okP, players = pcall(function() return game:GetService("Players") end)
+    if okP and players then
+        local lp = players.LocalPlayer
+        add(lp and lp:FindFirstChild("PlayerGui"))
+    end
+    return roots
+end
+
+local function HubCollectGuis(root)
+    local guis = {}
+    for _, ch in ipairs(root:GetChildren()) do
+        if ch:IsA("ScreenGui") then
+            guis[#guis + 1] = ch
+        elseif ch:IsA("Folder") or ch:IsA("Configuration") then
+            for _, sub in ipairs(ch:GetChildren()) do
+                if sub:IsA("ScreenGui") then guis[#guis + 1] = sub end
+            end
+        end
+    end
+    return guis
+end
+
+-- Tim ScreenGui cua hub (co tieu de Chilli VKing)
+local function FindHubGui()
+    for _, root in ipairs(HubScanRoots()) do
+        for _, ch in ipairs(HubCollectGuis(root)) do
+            if not ch:GetAttribute("__CosmicSkinned") then
+                for _, d in ipairs(ch:GetDescendants()) do
+                    if d:IsA("TextLabel") or d:IsA("TextButton") then
+                        local t = d.Text
+                        if t == "Chilli VKing" or t == "CHILLI VKING" or t == "Chilli Hub V5" then
+                            return ch
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return nil
+end
+
+-- Son cosmic: CHI tao instance tinh, KHONG them vong lap nao
+local function ApplyCosmicHubSkin()
+    local gui = FindHubGui()
+    if not gui then return false end
+    gui:SetAttribute("__CosmicSkinned", true)
+
+    local painted, stroked, stars = 0, 0, 0
+    local candidates = {}
+
+    for _, d in ipairs(gui:GetDescendants()) do
+        if d:IsA("Frame") or d:IsA("ImageLabel") or d:IsA("ImageButton") then
+            local sz = d.AbsoluteSize
+            if sz.X >= 260 and sz.Y >= 140 then
+                candidates[#candidates + 1] = d
+            end
+        end
+    end
+
+    -- Gioi han 12 frame lon nhat de khong ton chi phi render
+    table.sort(candidates, function(a, b)
+        return (a.AbsoluteSize.X * a.AbsoluteSize.Y) > (b.AbsoluteSize.X * b.AbsoluteSize.Y)
+    end)
+
+    for i = 1, math.min(#candidates, 12) do
+        local f = candidates[i]
+        if f and f.Parent then
+            local bg = f.BackgroundColor3
+            local lum = (bg.R * 0.299 + bg.G * 0.587 + bg.B * 0.114)
+            if lum < 0.30 then
+                if not f:FindFirstChild("HubCosmicFill") then
+                    local g = Instance.new("UIGradient")
+                    g.Name = "HubCosmicFill"
+                    g.Rotation = 90
+                    g.Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0.00, Color3.fromRGB(10, 6, 24)),
+                        ColorSequenceKeypoint.new(0.55, Color3.fromRGB(26, 12, 48)),
+                        ColorSequenceKeypoint.new(1.00, Color3.fromRGB(12, 8, 28)),
+                    })
+                    g.Parent = f
+                    painted = painted + 1
+                end
+                if not f:FindFirstChild("HubCosmicRim") then
+                    local s = Instance.new("UIStroke")
+                    s.Name = "HubCosmicRim"
+                    s.Thickness = 1
+                    s.Transparency = 0.35
+                    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+                    s.Color = Color3.new(1, 1, 1)
+                    local g2 = Instance.new("UIGradient")
+                    g2.Name = "HubCosmicRimGrad"
+                    g2.Color = HubCosmicGradient()
+                    g2.Parent = s
+                    s.Parent = f
+                    stroked = stroked + 1
+                end
+            end
+        end
+    end
+
+    -- Vien cosmic cho nut tron / nut bam nho (khong doi mau nen => giu trang thai bat/tat)
+    for _, d in ipairs(gui:GetDescendants()) do
+        if (d:IsA("TextButton") or d:IsA("ImageButton")) and d.AbsoluteSize.X >= 40 then
+            if not d:FindFirstChild("HubCosmicRim") then
+                local s = Instance.new("UIStroke")
+                s.Name = "HubCosmicRim"
+                s.Thickness = 1
+                s.Transparency = 0.62
+                s.Color = Color3.new(1, 1, 1)
+                local g3 = Instance.new("UIGradient")
+                g3.Color = HubCosmicGradient()
+                g3.Parent = s
+                s.Parent = d
+                stroked = stroked + 1
+            end
+        end
+    end
+
+    -- Sao tinh (khong animate => 0 chi phi sau khi tao)
+    local starHolder = gui:FindFirstChild("HubCosmicStars")
+    if not starHolder then
+        starHolder = Instance.new("Frame")
+        starHolder.Name = "HubCosmicStars"
+        starHolder.Size = UDim2.new(1, 0, 1, 0)
+        starHolder.BackgroundTransparency = 1
+        starHolder.ZIndex = 2
+        starHolder.Parent = gui
+        local seed = 20260101
+        for i = 1, 14 do
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            local rx = (seed % 1000) / 1000
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            local ry = (seed % 1000) / 1000
+            seed = (seed * 1103515245 + 12345) % 2147483648
+            local rt = 0.25 + ((seed % 1000) / 1000) * 0.45
+            local szp = 2 + (i % 3)
+            local s = Instance.new("Frame")
+            s.Name = "Star" .. i
+            s.Size = UDim2.new(0, szp, 0, szp)
+            s.Position = UDim2.new(0.02 + rx * 0.95, 0, 0.03 + ry * 0.93, 0)
+            s.BackgroundColor3 = (i % 3 == 0) and HUB_COSMIC_B or Color3.fromRGB(214, 199, 255)
+            s.BackgroundTransparency = rt
+            s.BorderSizePixel = 0
+            s.ZIndex = 2
+            local cc = Instance.new("UICorner")
+            cc.CornerRadius = UDim.new(1, 0)
+            cc.Parent = s
+            s.Parent = starHolder
+            stars = stars + 1
+        end
+    end
+
+    print(("[Chilli VKing] Cosmic hub: %d gradient, %d vien, %d sao"):format(painted, stroked, stars))
+    return true
+end
+
 local function LaunchTargetScriptWithWatcher()
     TakeGuiSnapshot()
     getgenv().ChilliV5_Active = true
@@ -331,7 +545,17 @@ local function LaunchTargetScriptWithWatcher()
 
     task.spawn(function()
         pcall(function()
-            loadstring(game:HttpGet(TargetScriptUrl))()
+            local hubRaw = game:HttpGet(TargetScriptUrl)
+            local hubOut = RenameHubBrand(hubRaw)
+            local hubFn = loadstring(hubOut)
+            if type(hubFn) ~= "function" then
+                warn("[Chilli VKing] Doi ten hub that bai, chay ban goc")
+                hubFn = loadstring(hubRaw)
+            end
+            if type(hubFn) == "function" then hubFn() end
+            for _, dl in ipairs({ 0.7, 1.8, 3.4 }) do
+                task.delay(dl, function() pcall(ApplyCosmicHubSkin) end)
+            end
         end)
     end)
 end
