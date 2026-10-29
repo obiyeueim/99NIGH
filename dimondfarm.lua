@@ -14,14 +14,14 @@ local LocalPlayer = Players.LocalPlayer
 local API_BASE = "https://chillihubvking-claimkey.dongbackhai600.workers.dev" -- [MYKEY] Worker key cua ban
 local KeyUrl = API_BASE .. "/"
 local TutorialUrl = "https://craftvip.github.io/free/getkey.html"
-local TargetScriptUrl = "https://raw.githubusercontent.com/robvxs24/freemium/refs/heads/main/chillivkingbeta.lua"
+local TargetScriptUrl = "https://raw.githubusercontent.com/robvxs24/freemium/refs/heads/main/chilliv5beta.lua"
 
 local ChilliAvatarId = "rbxassetid://92622270383869"  -- Hình quả ớt cho Menu Get Key bên ngoài
 local GiftBoxAssetId = "rbxassetid://115116611981430" -- Hình hộp quà cho Mini-game bên trong
 
-local KeyFileName = "Chillivking_KeyData.json"
-local TrialFileName = "Chillivking_TrialData.json"
-local GachaFileName = "Chillivking_GachaData.json"
+local KeyFileName = "ChilliV5_KeyData.json"
+local TrialFileName = "ChilliV5_TrialData.json"
+local GachaFileName = "ChilliV5_GachaData.json"
 local TRIAL_DURATION = 120 -- Thời gian dùng thử 2 phút (120 giây)
 
 local InitialGuis = {}
@@ -201,10 +201,10 @@ local function Save24hKey(customDuration: number?)
     end
 end
 
-local function VerifyChillivkingKey(rawInput: string): boolean
+local function VerifyChilliV5Key(rawInput: string): boolean
     if not rawInput or rawInput == "" then return false end
     local clean = string.lower(string.gsub(rawInput, "[%s%c]", ""))
-    clean = clean:gsub("^chillihubvking%-", ""):gsub("^chillivkingbeta%-", ""):gsub("^chillivking%-", "")
+    clean = clean:gsub("^chillihubv5%-", ""):gsub("^chilliv5beta%-", ""):gsub("^chilliv5%-", "")
 
     local vnTime = os.time() + (7 * 3600)
     for _, t in ipairs({ vnTime, vnTime - 86400, vnTime + 3600 }) do
@@ -238,7 +238,7 @@ end
 local function ApplyScreenLockdown()
     if not ActiveBlurEffect then
         ActiveBlurEffect = Instance.new("BlurEffect")
-        ActiveBlurEffect.Name = "Chillivking_LockdownBlur"
+        ActiveBlurEffect.Name = "ChilliV5_LockdownBlur"
         ActiveBlurEffect.Size = 24
         ActiveBlurEffect.Parent = Lighting
     end
@@ -259,7 +259,7 @@ local function ApplyScreenLockdown()
 
     if not InputBlockerScreen then
         InputBlockerScreen = Instance.new("ScreenGui")
-        InputBlockerScreen.Name = "Chillivking_InputBlocker"
+        InputBlockerScreen.Name = "ChilliV5_InputBlocker"
         InputBlockerScreen.ResetOnSpawn = false
         pcall(function() InputBlockerScreen.Parent = CoreGui end)
         if not InputBlockerScreen.Parent then InputBlockerScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
@@ -302,8 +302,8 @@ local function RemoveScreenLockdown()
 end
 
 local function TerminateTargetScript()
-    getgenv().Chillivking_Active = false
-    getgenv().Chillivking_TrialExpired = true
+    getgenv().ChilliV5_Active = false
+    getgenv().ChilliV5_TrialExpired = true
 
     for _, conn in ipairs(ScriptConnections) do
         if typeof(conn) == "RBXScriptConnection" and conn.Connected then
@@ -316,7 +316,7 @@ local function TerminateTargetScript()
     for _, c in ipairs(containers) do
         if c then
             for _, child in ipairs(c:GetChildren()) do
-                if not InitialGuis[child] and child.Name ~= "Chillivking_GetKeyUI" and child.Name ~= "Chillivking_ToastUI" and child.Name ~= "Chillivking_InputBlocker" then
+                if not InitialGuis[child] and child.Name ~= "ChilliV5_GetKeyUI" and child.Name ~= "ChilliV5_ToastUI" and child.Name ~= "ChilliV5_InputBlocker" then
                     pcall(function() child:Destroy() end)
                 end
             end
@@ -331,8 +331,8 @@ end
 -- =========================================================================
 local HUB_BRAND_PAIRS = {
     { "Chilli Hub Discord", "Chilli VKing Discord" },
-    { "Chilli Hub vking", "Chilli VKing" },
-    { "CHILLI HUB vking", "CHILLI VKING" },
+    { "Chilli Hub V5", "Chilli VKing" },
+    { "CHILLI HUB V5", "CHILLI VKING" },
     { "Chilli Hub", "Chilli VKing" },
     { "CHILLI HUB", "CHILLI VKING" },
 }
@@ -412,7 +412,7 @@ local function FindHubGui()
                 for _, d in ipairs(ch:GetDescendants()) do
                     if d:IsA("TextLabel") or d:IsA("TextButton") then
                         local t = d.Text
-                        if t == "Chilli VKing" or t == "CHILLI VKING" or t == "Chilli Hub vking" then
+                        if t == "Chilli VKing" or t == "CHILLI VKING" or t == "Chilli Hub V5" then
                             return ch
                         end
                     end
@@ -540,8 +540,8 @@ end
 
 local function LaunchTargetScriptWithWatcher()
     TakeGuiSnapshot()
-    getgenv().Chillivking_Active = true
-    if getgenv().Chillivking_ExternalHub == true then return end
+    getgenv().ChilliV5_Active = true
+    if getgenv().ChilliV5_ExternalHub == true then return end
 
     task.spawn(function()
         pcall(function()
@@ -570,13 +570,13 @@ end
 local ActiveToastLabel = nil
 
 local function ShowLiveToast(titleText: string, initialSeconds: number, color: Color3)
-    if CoreGui:FindFirstChild("Chillivking_ToastUI") then CoreGui.Chillivking_ToastUI:Destroy() end
-    if LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("Chillivking_ToastUI") then
-        LocalPlayer.PlayerGui.Chillivking_ToastUI:Destroy()
+    if CoreGui:FindFirstChild("ChilliV5_ToastUI") then CoreGui.ChilliV5_ToastUI:Destroy() end
+    if LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("ChilliV5_ToastUI") then
+        LocalPlayer.PlayerGui.ChilliV5_ToastUI:Destroy()
     end
 
     local ToastGui = Instance.new("ScreenGui")
-    ToastGui.Name = "Chillivking_ToastUI"
+    ToastGui.Name = "ChilliV5_ToastUI"
     ToastGui.ResetOnSpawn = false
     pcall(function() ToastGui.Parent = CoreGui end)
     if not ToastGui.Parent then ToastGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
@@ -658,6 +658,289 @@ local function ShowLiveToast(titleText: string, initialSeconds: number, color: C
         end
     end)
 end
+
+-- =========================================================================
+--   [KEY-WATCH] Kiem tra key lien tuc + chan hub tai lai khi doi server
+--   1 request / 60 giay. Khong them vong lap theo frame.
+-- =========================================================================
+
+local HEARTBEAT_INTERVAL = 60
+local HEARTBEAT_MAX_MISS = 2
+
+local function ResetKeyFlags()
+    local env = (getgenv and getgenv()) or _G
+    if not env then return end
+    env.ChilliV5_Active = false
+    env.ChilliV5_ExternalHub = nil
+    env.ChilliV5_Heartbeat = false
+    env.ChilliV5_KeyExpired = false
+end
+
+local function KeyErrIsNetwork(msg)
+    local s = string.lower(tostring(msg or ''))
+    return s:find('khong goi duoc server', 1, true) ~= nil
+        or s:find('server tra ve rong', 1, true) ~= nil
+        or s:find('phan hoi khong hop le', 1, true) ~= nil
+end
+
+local KeyExpiredHandler = nil
+
+local function StartKeyHeartbeat(activeKey)
+    local env = (getgenv and getgenv()) or _G
+    if not env or not activeKey then return end
+    if env.ChilliV5_Heartbeat == true then return end
+    env.ChilliV5_Heartbeat = true
+
+    task.spawn(function()
+        local miss = 0
+        while env.ChilliV5_Heartbeat == true do
+            task.wait(HEARTBEAT_INTERVAL)
+            if env.ChilliV5_Heartbeat ~= true then break end
+            local ok, err = ApiVerify(activeKey)
+            if ok then
+                miss = 0
+            else
+                miss = miss + 1
+                if miss >= HEARTBEAT_MAX_MISS or not KeyErrIsNetwork(err) then
+                    env.ChilliV5_Heartbeat = false
+                    if type(KeyExpiredHandler) == 'function' then
+                        pcall(KeyExpiredHandler, tostring(err or ''))
+                    end
+                    break
+                end
+            end
+        end
+    end)
+end
+
+KeyExpiredHandler = function(reason)
+    local env = (getgenv and getgenv()) or _G
+    if env then
+        env.ChilliV5_Active = false
+        env.ChilliV5_ExternalHub = nil
+        env.ChilliV5_KeyExpired = true
+    end
+    pcall(TerminateTargetScript)
+    pcall(ApplyScreenLockdown)
+    pcall(ShowLiveToast, 'KEY DA HET HAN - LAY KEY LAI', 0, Color3.fromRGB(225, 29, 72))
+    task.wait(1)
+    if type(OpenKeySystemUI) == 'function' then pcall(OpenKeySystemUI) end
+    print('[Chilli VKing] Key het han: ' .. tostring(reason))
+end
+
+-- Boot tu chua: chay lai sau moi lan doi server
+local TELEPORT_GUARD_ON = false
+
+local function BuildTeleportBoot()
+    local Q = string.char(39)
+    local head = 'local API=' .. Q .. API_BASE .. Q
+        .. ' local HWID=' .. Q .. MY_HWID .. Q
+        .. ' local HUB=' .. Q .. TargetScriptUrl .. Q .. ' '
+
+    local body = [==[
+local HS=game:GetService('HttpService')
+local CG=game:GetService('CoreGui')
+local LP=game:GetService('Players').LocalPlayer
+local env=(getgenv and getgenv()) or _G
+if env then env.ChilliV5_Active=false env.ChilliV5_Heartbeat=false env.ChilliV5_ExternalHub=nil end
+local req=(syn and syn.request) or (http and http.request) or http_request or request or (fluxus and fluxus.request)
+local function verify(k)
+    if not k or type(req)~='function' then return false,'no request' end
+    local ok,good,err=pcall(function()
+        local r=req({Url=API..'/api/verify',Method='POST',Headers={['Content-Type']='application/json'},Body=HS:JSONEncode({key=k,hwid=HWID})})
+        if type(r)~='table' then return false,'bad response' end
+        local b=r.Body or r.body
+        if type(b)~='string' or b=='' then return false,'empty' end
+        local d=HS:JSONDecode(b)
+        if type(d)=='table' and d.ok==true then return true end
+        return false,'invalid'
+    end)
+    if not ok then return false,'request failed' end
+    return good,err
+end
+local function norm(s)
+    local k=string.upper(tostring(s or '')):gsub('[^A-Z0-9]','')
+    if #k~=16 then return nil end
+    return string.sub(k,1,4)..'-'..string.sub(k,5,8)..'-'..string.sub(k,9,12)..'-'..string.sub(k,13,16)
+end
+local function makeGui(nm,disp)
+    local g=Instance.new('ScreenGui')
+    g.Name=nm g.ResetOnSpawn=false g.DisplayOrder=disp
+    pcall(function() g.Parent=CG end)
+    if not g.Parent then g.Parent=LP:WaitForChild('PlayerGui') end
+    return g
+end
+local function notice(txt)
+    local g=makeGui('ChilliV5_BootNotice',900)
+    local f=Instance.new('Frame')
+    f.AnchorPoint=Vector2.new(0.5,0.5) f.Position=UDim2.new(0.5,0,0.5,0)
+    f.Size=UDim2.new(0,360,0,64) f.BackgroundColor3=Color3.fromRGB(24,8,20)
+    f.BorderSizePixel=0 f.Parent=g
+    Instance.new('UICorner',f).CornerRadius=UDim.new(0,12)
+    local s=Instance.new('UIStroke',f) s.Color=Color3.fromRGB(225,29,72) s.Thickness=1
+    local t=Instance.new('TextLabel')
+    t.Size=UDim2.new(1,-20,1,0) t.Position=UDim2.new(0,10,0,0)
+    t.BackgroundTransparency=1 t.Text=txt t.TextWrapped=true
+    t.TextColor3=Color3.fromRGB(255,220,220) t.TextSize=12 t.Font=Enum.Font.GothamBold t.Parent=f
+    task.delay(8,function() pcall(function() g:Destroy() end) end)
+end
+local function killHub()
+    local keep={ChilliV5_BootNotice=true,ChilliV5_BootKey=true}
+    for _,c in ipairs({CG, LP:FindFirstChild('PlayerGui')}) do
+        if c then
+            for _,ch in ipairs(c:GetChildren()) do
+                if ch:IsA('ScreenGui') and not keep[ch.Name] then
+                    pcall(function() ch:Destroy() end)
+                end
+            end
+        end
+    end
+end
+local function expired()
+    if env then env.ChilliV5_Active=false env.ChilliV5_Heartbeat=false end
+    killHub()
+    notice('KEY DA HET HAN - HAY CHAY LAI SCRIPT DE LAY KEY MOI')
+end
+local function openHub()
+    local ok,err=pcall(function()
+        local raw=game:HttpGet(HUB)
+        local out=raw
+        if type(raw)=='string' then
+            out=raw:gsub('Chilli Hub Discord','Chilli VKing Discord')
+            out=out:gsub('Chilli Hub V5','Chilli VKing')
+            out=out:gsub('CHILLI HUB V5','CHILLI VKING')
+            out=out:gsub('Chilli Hub','Chilli VKing')
+        end
+        local fn=loadstring(out)
+        if type(fn)~='function' then fn=loadstring(raw) end
+        if type(fn)=='function' then fn() end
+    end)
+    if not ok then warn('[Chilli VKing] boot hub loi: '..tostring(err)) end
+end
+local function startWatch(k)
+    if env then env.ChilliV5_Heartbeat=true end
+    task.spawn(function()
+        local miss=0
+        while env and env.ChilliV5_Heartbeat==true do
+            task.wait(60)
+            if env.ChilliV5_Heartbeat~=true then break end
+            local ok=verify(k)
+            if ok then
+                miss=0
+            else
+                miss=miss+1
+                if miss>=2 then pcall(expired) break end
+            end
+        end
+    end)
+end
+local function keyBox()
+    local g=makeGui('ChilliV5_BootKey',910)
+    local f=Instance.new('Frame')
+    f.AnchorPoint=Vector2.new(0.5,0.5) f.Position=UDim2.new(0.5,0,0.5,0)
+    f.Size=UDim2.new(0,380,0,176) f.BackgroundColor3=Color3.fromRGB(12,7,28)
+    f.BorderSizePixel=0 f.Parent=g
+    Instance.new('UICorner',f).CornerRadius=UDim.new(0,16)
+    local st=Instance.new('UIStroke',f)
+    st.Thickness=1 st.Color=Color3.fromRGB(124,58,237)
+    local gd=Instance.new('UIGradient',st)
+    gd.Color=ColorSequence.new({
+        ColorSequenceKeypoint.new(0.00,Color3.fromRGB(124,58,237)),
+        ColorSequenceKeypoint.new(0.55,Color3.fromRGB(6,182,212)),
+        ColorSequenceKeypoint.new(1.00,Color3.fromRGB(236,72,153)),
+    })
+    local ttl=Instance.new('TextLabel')
+    ttl.Size=UDim2.new(1,-32,0,20) ttl.Position=UDim2.new(0,16,0,14)
+    ttl.BackgroundTransparency=1 ttl.Text='CHILLI VKING - KEY DA HET HAN'
+    ttl.TextColor3=Color3.fromRGB(243,240,255) ttl.TextSize=13
+    ttl.Font=Enum.Font.GothamBold ttl.TextXAlignment=Enum.TextXAlignment.Left ttl.Parent=f
+    local box=Instance.new('TextBox')
+    box.Size=UDim2.new(1,-32,0,36) box.Position=UDim2.new(0,16,0,44)
+    box.BackgroundColor3=Color3.fromRGB(22,25,34) box.BorderSizePixel=0
+    box.PlaceholderText='Dan ma key tai day...' box.Text=''
+    box.TextColor3=Color3.fromRGB(243,240,255) box.TextSize=12
+    box.Font=Enum.Font.GothamMedium box.ClearTextOnFocus=false box.Parent=f
+    Instance.new('UICorner',box).CornerRadius=UDim.new(0,10)
+    local btn=Instance.new('TextButton')
+    btn.Size=UDim2.new(1,-32,0,38) btn.Position=UDim2.new(0,16,0,92)
+    btn.BackgroundColor3=Color3.fromRGB(124,58,237) btn.Text='KICH HOAT'
+    btn.TextColor3=Color3.fromRGB(255,255,255) btn.TextSize=12
+    btn.Font=Enum.Font.GothamBold btn.AutoButtonColor=false btn.Parent=f
+    Instance.new('UICorner',btn).CornerRadius=UDim.new(0,10)
+    local msg=Instance.new('TextLabel')
+    msg.Size=UDim2.new(1,-32,0,18) msg.Position=UDim2.new(0,16,0,140)
+    msg.BackgroundTransparency=1 msg.Text='Nhap key moi de tiep tuc su dung hub'
+    msg.TextColor3=Color3.fromRGB(176,164,220) msg.TextSize=10
+    msg.Font=Enum.Font.GothamMedium msg.TextXAlignment=Enum.TextXAlignment.Left msg.Parent=f
+    btn.MouseButton1Click:Connect(function()
+        local k=norm(box.Text)
+        if not k then
+            msg.Text='Ma key phai co 16 ky tu'
+            msg.TextColor3=Color3.fromRGB(244,63,94)
+            return
+        end
+        msg.Text='Dang kiem tra...'
+        msg.TextColor3=Color3.fromRGB(176,164,220)
+        local ok,err=verify(k)
+        if ok then
+            pcall(function() if writefile then writefile('chilli_key.txt',k) end end)
+            pcall(function() g:Destroy() end)
+            if env then env.ChilliV5_Active=true end
+            openHub()
+            startWatch(k)
+        else
+            msg.Text=tostring(err or 'Key khong hop le')
+            msg.TextColor3=Color3.fromRGB(244,63,94)
+        end
+    end)
+end
+local raw=nil
+if isfile and readfile and isfile('chilli_key.txt') then
+    pcall(function() raw=readfile('chilli_key.txt') end)
+end
+local k0=norm(raw)
+local ok0=verify(k0)
+if ok0 then
+    if env then env.ChilliV5_Active=true end
+    openHub()
+    startWatch(k0)
+else
+    keyBox()
+end
+    ]==]
+
+    return head .. body
+end
+
+local function InstallTeleportGuard()
+    if TELEPORT_GUARD_ON then return end
+    TELEPORT_GUARD_ON = true
+
+    local env = (getgenv and getgenv()) or _G
+    local boot = BuildTeleportBoot()
+
+    local realQueue = nil
+    pcall(function() if syn and type(syn.queue_on_teleport) == 'function' then realQueue = syn.queue_on_teleport end end)
+    if not realQueue then pcall(function() if type(queue_on_teleport) == 'function' then realQueue = queue_on_teleport end end) end
+    if not realQueue then pcall(function() if type(queueonteleport) == 'function' then realQueue = queueonteleport end end) end
+    if not realQueue then pcall(function() if fluxus and type(fluxus.queue_on_teleport) == 'function' then realQueue = fluxus.queue_on_teleport end end) end
+    if not realQueue then
+        warn('[Chilli VKing] Executor khong ho tro queue_on_teleport - khong chan duoc hub sau khi doi server')
+        return
+    end
+
+    local function put(_) pcall(realQueue, boot) end
+
+    pcall(function() if syn then syn.queue_on_teleport = put end end)
+    pcall(function() if fluxus then fluxus.queue_on_teleport = put end end)
+    pcall(function() if env then env.queue_on_teleport = put end end)
+    pcall(function() queue_on_teleport = put end)
+    pcall(function() queueonteleport = put end)
+
+    put(boot)
+    print('[Chilli VKing] Da chan hub tai lai sau khi doi server')
+end
+
 -- =========================================================================
 --   🌶️ CHILLI VKING (PHẦN 3/5)
 --   GIAO DIỆN CHÍNH DARK SLATE · TỶ LỆ CHUẨN SCALE 1.0 · DỊU MẮT
@@ -674,7 +957,7 @@ local Languages = {
         Placeholder = "Dán mã key tại đây...",
         QuickPaste = "Dán",
         GetKey = "Lấy Key (16 Giờ)",
-        CheckKey = "Kích Hoạt vking",
+        CheckKey = "Kích Hoạt V5",
         Tutorial = "📖 Hướng dẫn vượt link lấy key",
         MiniGame = "mini game ( getkey or nokey ) 🤑",
         MiniGameLocked = "🔒 Đã mở hôm nay (Reset 00:00)",
@@ -696,7 +979,7 @@ local Languages = {
         Placeholder = "Paste your license key here...",
         QuickPaste = "Paste",
         GetKey = "Get Key (16 Hours)",
-        CheckKey = "Activate vking",
+        CheckKey = "Activate V5",
         Tutorial = "📖 How to bypass link tutorial",
         MiniGame = "mini game ( getkey or nokey ) 🤑",
         MiniGameLocked = "🔒 Opened Today (Resets 00:00)",
@@ -895,10 +1178,10 @@ local function ApplyCosmicSkin(screenGui, mainFrame)
 end
 
 OpenKeySystemUI = function()
-    if CoreGui:FindFirstChild("Chillivking_GetKeyUI") then CoreGui.Chillivking_GetKeyUI:Destroy() end
+    if CoreGui:FindFirstChild("ChilliV5_GetKeyUI") then CoreGui.ChilliV5_GetKeyUI:Destroy() end
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "Chillivking_GetKeyUI"
+    ScreenGui.Name = "ChilliV5_GetKeyUI"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     pcall(function() ScreenGui.Parent = CoreGui end)
@@ -1417,6 +1700,7 @@ OpenKeySystemUI = function()
 
             task.wait(1.2)
             RemoveScreenLockdown()
+            StartKeyHeartbeat(normKey)
             LaunchTargetScriptWithWatcher()
 
             TweenService:Create(MainScale, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Scale = 0.8 }):Play()
@@ -1597,6 +1881,10 @@ end
 --   LUỒNG CHÍNH: DÙNG THỬ 2 PHÚT & KHÓA MÀN HÌNH TỰ ĐỘNG
 -- =========================================================================
 
+-- [KEY-WATCH] Xoa co phien cu (chan di truyen quyen qua teleport) + chan hub tu nap lai
+ResetKeyFlags()
+InstallTeleportGuard()
+
 -- [MYKEY] Kiem tra key da luu voi server truoc khi mo hub
 local savedMyKey = nil
 if isfile and readfile and isfile("chilli_key.txt") then
@@ -1608,6 +1896,7 @@ if savedMyKey then
     local okK, errK, remMs = ApiVerify(savedMyKey)
     if okK then
         ShowLiveToast("CHILLI VKING -- KEY OK", math.floor((remMs or 0) / 1000), Color3.fromRGB(225, 29, 72))
+        StartKeyHeartbeat(savedMyKey)
         LaunchTargetScriptWithWatcher()
         return
     end
