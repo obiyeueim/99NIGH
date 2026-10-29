@@ -14,14 +14,14 @@ local LocalPlayer = Players.LocalPlayer
 local API_BASE = "https://chillihubvking-claimkey.dongbackhai600.workers.dev" -- [MYKEY] Worker key cua ban
 local KeyUrl = API_BASE .. "/"
 local TutorialUrl = "https://craftvip.github.io/free/getkey.html"
-local TargetScriptUrl = "https://raw.githubusercontent.com/robvxs24/freemium/refs/heads/main/chilliv5beta.lua"
+local TargetScriptUrl = "https://raw.githubusercontent.com/robvxs24/freemium/refs/heads/main/chillivkingbeta.lua"
 
 local ChilliAvatarId = "rbxassetid://92622270383869"  -- Hình quả ớt cho Menu Get Key bên ngoài
 local GiftBoxAssetId = "rbxassetid://115116611981430" -- Hình hộp quà cho Mini-game bên trong
 
-local KeyFileName = "ChilliV5_KeyData.json"
-local TrialFileName = "ChilliV5_TrialData.json"
-local GachaFileName = "ChilliV5_GachaData.json"
+local KeyFileName = "Chillivking_KeyData.json"
+local TrialFileName = "Chillivking_TrialData.json"
+local GachaFileName = "Chillivking_GachaData.json"
 local TRIAL_DURATION = 120 -- Thời gian dùng thử 2 phút (120 giây)
 
 local InitialGuis = {}
@@ -201,10 +201,10 @@ local function Save24hKey(customDuration: number?)
     end
 end
 
-local function VerifyChilliV5Key(rawInput: string): boolean
+local function VerifyChillivkingKey(rawInput: string): boolean
     if not rawInput or rawInput == "" then return false end
     local clean = string.lower(string.gsub(rawInput, "[%s%c]", ""))
-    clean = clean:gsub("^chillihubv5%-", ""):gsub("^chilliv5beta%-", ""):gsub("^chilliv5%-", "")
+    clean = clean:gsub("^chillihubvking%-", ""):gsub("^chillivkingbeta%-", ""):gsub("^chillivking%-", "")
 
     local vnTime = os.time() + (7 * 3600)
     for _, t in ipairs({ vnTime, vnTime - 86400, vnTime + 3600 }) do
@@ -238,7 +238,7 @@ end
 local function ApplyScreenLockdown()
     if not ActiveBlurEffect then
         ActiveBlurEffect = Instance.new("BlurEffect")
-        ActiveBlurEffect.Name = "ChilliV5_LockdownBlur"
+        ActiveBlurEffect.Name = "Chillivking_LockdownBlur"
         ActiveBlurEffect.Size = 24
         ActiveBlurEffect.Parent = Lighting
     end
@@ -259,7 +259,7 @@ local function ApplyScreenLockdown()
 
     if not InputBlockerScreen then
         InputBlockerScreen = Instance.new("ScreenGui")
-        InputBlockerScreen.Name = "ChilliV5_InputBlocker"
+        InputBlockerScreen.Name = "Chillivking_InputBlocker"
         InputBlockerScreen.ResetOnSpawn = false
         pcall(function() InputBlockerScreen.Parent = CoreGui end)
         if not InputBlockerScreen.Parent then InputBlockerScreen.Parent = LocalPlayer:WaitForChild("PlayerGui") end
@@ -302,8 +302,8 @@ local function RemoveScreenLockdown()
 end
 
 local function TerminateTargetScript()
-    getgenv().ChilliV5_Active = false
-    getgenv().ChilliV5_TrialExpired = true
+    getgenv().Chillivking_Active = false
+    getgenv().Chillivking_TrialExpired = true
 
     for _, conn in ipairs(ScriptConnections) do
         if typeof(conn) == "RBXScriptConnection" and conn.Connected then
@@ -316,7 +316,7 @@ local function TerminateTargetScript()
     for _, c in ipairs(containers) do
         if c then
             for _, child in ipairs(c:GetChildren()) do
-                if not InitialGuis[child] and child.Name ~= "ChilliV5_GetKeyUI" and child.Name ~= "ChilliV5_ToastUI" and child.Name ~= "ChilliV5_InputBlocker" then
+                if not InitialGuis[child] and child.Name ~= "Chillivking_GetKeyUI" and child.Name ~= "Chillivking_ToastUI" and child.Name ~= "Chillivking_InputBlocker" then
                     pcall(function() child:Destroy() end)
                 end
             end
@@ -331,8 +331,8 @@ end
 -- =========================================================================
 local HUB_BRAND_PAIRS = {
     { "Chilli Hub Discord", "Chilli VKing Discord" },
-    { "Chilli Hub V5", "Chilli VKing" },
-    { "CHILLI HUB V5", "CHILLI VKING" },
+    { "Chilli Hub vking", "Chilli VKing" },
+    { "CHILLI HUB vking", "CHILLI VKING" },
     { "Chilli Hub", "Chilli VKing" },
     { "CHILLI HUB", "CHILLI VKING" },
 }
@@ -412,7 +412,7 @@ local function FindHubGui()
                 for _, d in ipairs(ch:GetDescendants()) do
                     if d:IsA("TextLabel") or d:IsA("TextButton") then
                         local t = d.Text
-                        if t == "Chilli VKing" or t == "CHILLI VKING" or t == "Chilli Hub V5" then
+                        if t == "Chilli VKing" or t == "CHILLI VKING" or t == "Chilli Hub vking" then
                             return ch
                         end
                     end
@@ -540,8 +540,8 @@ end
 
 local function LaunchTargetScriptWithWatcher()
     TakeGuiSnapshot()
-    getgenv().ChilliV5_Active = true
-    if getgenv().ChilliV5_ExternalHub == true then return end
+    getgenv().Chillivking_Active = true
+    if getgenv().Chillivking_ExternalHub == true then return end
 
     task.spawn(function()
         pcall(function()
@@ -570,13 +570,13 @@ end
 local ActiveToastLabel = nil
 
 local function ShowLiveToast(titleText: string, initialSeconds: number, color: Color3)
-    if CoreGui:FindFirstChild("ChilliV5_ToastUI") then CoreGui.ChilliV5_ToastUI:Destroy() end
-    if LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("ChilliV5_ToastUI") then
-        LocalPlayer.PlayerGui.ChilliV5_ToastUI:Destroy()
+    if CoreGui:FindFirstChild("Chillivking_ToastUI") then CoreGui.Chillivking_ToastUI:Destroy() end
+    if LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("Chillivking_ToastUI") then
+        LocalPlayer.PlayerGui.Chillivking_ToastUI:Destroy()
     end
 
     local ToastGui = Instance.new("ScreenGui")
-    ToastGui.Name = "ChilliV5_ToastUI"
+    ToastGui.Name = "Chillivking_ToastUI"
     ToastGui.ResetOnSpawn = false
     pcall(function() ToastGui.Parent = CoreGui end)
     if not ToastGui.Parent then ToastGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
@@ -674,7 +674,7 @@ local Languages = {
         Placeholder = "Dán mã key tại đây...",
         QuickPaste = "Dán",
         GetKey = "Lấy Key (16 Giờ)",
-        CheckKey = "Kích Hoạt V5",
+        CheckKey = "Kích Hoạt vking",
         Tutorial = "📖 Hướng dẫn vượt link lấy key",
         MiniGame = "mini game ( getkey or nokey ) 🤑",
         MiniGameLocked = "🔒 Đã mở hôm nay (Reset 00:00)",
@@ -696,7 +696,7 @@ local Languages = {
         Placeholder = "Paste your license key here...",
         QuickPaste = "Paste",
         GetKey = "Get Key (16 Hours)",
-        CheckKey = "Activate V5",
+        CheckKey = "Activate vking",
         Tutorial = "📖 How to bypass link tutorial",
         MiniGame = "mini game ( getkey or nokey ) 🤑",
         MiniGameLocked = "🔒 Opened Today (Resets 00:00)",
@@ -895,10 +895,10 @@ local function ApplyCosmicSkin(screenGui, mainFrame)
 end
 
 OpenKeySystemUI = function()
-    if CoreGui:FindFirstChild("ChilliV5_GetKeyUI") then CoreGui.ChilliV5_GetKeyUI:Destroy() end
+    if CoreGui:FindFirstChild("Chillivking_GetKeyUI") then CoreGui.Chillivking_GetKeyUI:Destroy() end
 
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "ChilliV5_GetKeyUI"
+    ScreenGui.Name = "Chillivking_GetKeyUI"
     ScreenGui.ResetOnSpawn = false
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     pcall(function() ScreenGui.Parent = CoreGui end)
