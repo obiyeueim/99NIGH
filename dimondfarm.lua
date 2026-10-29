@@ -327,6 +327,7 @@ end
 local function LaunchTargetScriptWithWatcher()
     TakeGuiSnapshot()
     getgenv().ChilliV5_Active = true
+    if getgenv().ChilliV5_ExternalHub == true then return end
 
     task.spawn(function()
         pcall(function()
